@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        #stopwatch {
+            text-align: center;
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="stopwatch">
+        <h1>Stopwatch</h1>
+        <p id="display">00:00:00</p>
+        <button id="startStop" onclick="startStop()">Start</button>
+        <button id="lapReset" onclick="lapReset()" disabled>Lap</button>
+        <ul id="laps"></ul>
+    </div>
+
+    <script>
+        var isRunning = false;
+        var startTime;
+        var totalElapsedTime = 0;
+        var lapTimes = [];
+
+        function startStop() {
+            var startStopButton = document.getElementById('startStop');
+            var lapResetButton = document.getElementById('lapReset');
+
+            if (isRunning) {
+                // Stop the stopwatch
+                isRunning = false;
+                lapResetButton.innerHTML = 'Reset';
+                lapResetButton.disabled = false;
+                startStopButton.innerHTML = 'Start';
+                clearInterval(timerInterval);
+            } else {
+                // Start the stopwatch
+                isRunning = true;
+                lapResetButton.innerHTML = 'Lap';
+                startStopButton.innerHTML = 'Stop';
+                lapResetButton.disabled = false;
+                startTime = new Date().getTime() - totalElapsedTime;
+                timerInterval = setInterval(updateDisplay, 10);
+            }
+        }
+
+        function lapReset() {
+            var lapResetButton = document.getElementById('lapReset');
+            var lapsList = document.getElementById('laps');
+
+            if (isRunning) {
+                // Record lap time
+                var lapTime = calculateElapsedTime();
+                lapTimes.push(formatTime(lapTime));
+                lapsList.innerHTML = '';
+                lapTimes.forEach(function (lap, index) {
+                    var li = document.createElement('li');
+                    li.innerHTML = 'Lap ' + (index + 1) + ': ' + lap;
+                    lapsList.appendChild(li);
+                });
+            } else {
+                // Reset the stopwatch
+                lapTimes = [];
+                lapsList.innerHTML = '';
+                document.getElementById('display').innerHTML = '00:00:00';
+                lapResetButton.disabled = true;
+                totalElapsedTime = 0;
+            }
+        }
+
+        function updateDisplay() {
+            var display = document.getElementById('display');
+            var elapsedTime = calculateElapsedTime();
+            display.innerHTML = formatTime(elapsedTime);
+        }
+
+        function calculateElapsedTime() {
+            var currentTime = new Date().getTime();
+            totalElapsedTime = currentTime - startTime;
+            return totalElapsedTime;
+        }
+
+        function formatTime(milliseconds) {
+            var date = new Date(milliseconds);
+            var hours = date.getUTCHours();
+            var minutes = date.getUTCMinutes();
+            var seconds = date.getUTCSeconds();
+            var milliseconds = date.getUTCMilliseconds();
+
+            return (
+                (hours < 10 ? '0' : '') + hours + ':' +
+                (minutes < 10 ? '0' : '') + minutes + ':' +
+                (seconds < 10 ? '0' : '') + seconds + '.' +
+                (milliseconds < 10 ? '00' : milliseconds < 100 ? '0' : '') + milliseconds
+            );
+        }    </script>
+
+</body>
+</html>
+
+
